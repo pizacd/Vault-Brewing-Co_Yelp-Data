@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 from bs4 import BeautifulSoup as soup
 import requests
 import re
 
-
-# In[2]:
 
 
 #url for desired business. Yelp updated the tags so they need to be updated if it isn't finding the text.
@@ -18,19 +13,14 @@ response = requests.get(url)
 s = soup(response.text,'html.parser')
 
 
-# In[16]:
-
 
 response.status_code #used to confirm whether data can be scraped. 200 indicats that scraping will be accepted.
 
 
-# In[15]:
 
 
 num_reviews = int(s.find('p',attrs = {'class':"lemon--p__373c0__3Qnnj text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa- text-size--large__373c0__3t60B"}).text.strip(' reviews'))
 
-
-# In[25]:
 
 
 print(num_reviews)
@@ -40,20 +30,13 @@ for i in range(0, num_reviews,20):
 print(url_list[:10])
 
 
-# In[22]:
-
 
 #part of webpage that highlights the entire review
 reviews = s.find_all('div',attrs = {'class':"lemon--div__373c0__1mboc review__373c0__13kpL sidebarActionsHoverTarget__373c0__2kfhE arrange__373c0__2C9bH gutter-2__373c0__1DiLQ grid__373c0__1Pz7f layout-stack-small__373c0__27wVp border-color--default__373c0__3-ifU"})
 
 
-# In[24]:
-
 
 print(len(reviews))
-
-
-# In[23]:
 
 
 review = reviews[0]
