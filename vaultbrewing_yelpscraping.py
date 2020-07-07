@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
+#Importing libraries needed to complete web scraping
 from bs4 import BeautifulSoup as soup
 import requests
 import re
-
 
 
 #url for desired business. Yelp updated the tags so they need to be updated if it isn't finding the text.
@@ -18,16 +19,14 @@ response.status_code #used to confirm whether data can be scraped. 200 indicats 
 
 
 
-
 num_reviews = int(s.find('p',attrs = {'class':"lemon--p__373c0__3Qnnj text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa- text-size--large__373c0__3t60B"}).text.strip(' reviews'))
 
 
-
-print(num_reviews)
+print(str(num_reviews)+' reviews posted about this restaurant')
 url_list = []
+#creating list of all the urls to call in order to scrape reviews on different pages
 for i in range(0, num_reviews,20):
     url_list.append(url+'?start='+str(i))
-print(url_list[:10])
 
 
 
@@ -36,10 +35,41 @@ reviews = s.find_all('div',attrs = {'class':"lemon--div__373c0__1mboc review__37
 
 
 
-print(len(reviews))
+review = reviews[2]
+#To protect privacy, Yelp user names have not been included in the file. However, source code is below.
+#username = review.find('span',attrs = {'class':"lemon--span__373c0__3997G text__373c0__2pB8f fs-block text-color--inherit__373c0__w_15m text-align--left__373c0__2pnx_ text-weight--bold__373c0__3HYJa"}).string
+#print(username)
 
 
-review = reviews[0]
+
+location = review.find('span',attrs = {'class':"lemon--span__373c0__3997G text__373c0__2Kxyz text-color--normal__373c0__3xep9 text-align--left__373c0__2XGa- text-weight--bold__373c0__1elNz text-size--small__373c0__3NVWO"}).get_text().strip()
+
+
+
+print(location)
+
+
+
+#getting the rating and doing string manipulation to change the data type to float
+rating = float(review.select('[aria-label*=rating]')[0]['aria-label'].strip(' star rating'))
+
+
+print(rating)
+
+
+#Extracting the date the review was posted on Yelp
+date = review.find('span',attrs = {'class':"lemon--span__373c0__3997G text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa-"}).get_text()
+print(date)
+
+
+
+#Extracting the text of the review
+content = review.find('p',attrs = {'class':"lemon--p__373c0__3Qnnj text__373c0__2Kxyz comment__373c0__3EKjH text-color--normal__373c0__3xep9 text-align--left__373c0__2XGa-"}).text
+
+
+
+content
+
 
 import csv
 import time
@@ -53,7 +83,7 @@ def scrape_single_page(reviews, csvwriter):
         try:
             location = review.find('span',attrs = {'class':"lemon--span__373c0__3997G text__373c0__2Kxyz text-color--normal__373c0__3xep9 text-align--left__373c0__2XGa- text-weight--bold__373c0__1elNz text-size--small__373c0__3NVWO"}).get_text().strip()  
         except:
-            location = 'None provided'
+            location = ''
         date = review.find('span',attrs = {'class':"lemon--span__373c0__3997G text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa-"}).get_text()
         rating = float(review.select('[aria-label*=rating]')[0]['aria-label'].strip(' star rating'))
         content = review.find('p',attrs = {'class':"lemon--p__373c0__3Qnnj text__373c0__2Kxyz comment__373c0__3EKjH text-color--normal__373c0__3xep9 text-align--left__373c0__2XGa-"}).text
@@ -77,10 +107,4 @@ with open('vaultbrewing.csv','w',encoding = 'utf-8') as csvfile:
         time.sleep(random.randint(1,5))
         #log the progress
         print('finished page '+str(index+1) + ' of '+ str(len(url_list)))
-
-
-
-
-
-
 
